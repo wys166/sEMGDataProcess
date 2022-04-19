@@ -1,7 +1,11 @@
 # Content
-These are the codes for the following paper: "Classification and simulation of process of linear change for grip force at different grip speeds by using supervised learning based on sEMG".
-  **Requirements**
+These are the codes for the following paper: "Classification and simulation of process of linear change for grip force at different grip speeds by using supervised learning based on sEMG".  
+  
+  
+  **Requirements**  
+
   (1)python 3.8.6  
+
 
   (2)numpy 1.22.3  
 
