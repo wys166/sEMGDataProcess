@@ -57,6 +57,8 @@ def SlidingMeanFiltering(data, window):
     return newdata
 ########滑动平均滤波######### 
 
+
+
 def ForceDenoiseShow(filename):
     sampling_rate = 1000
     force,Raw_1,Envelope_1,Raw_2,Envelope_2=LoadDataSetAfterProcess(filename)
@@ -76,3 +78,4 @@ def ForceDenoiseShow(filename):
     
     plt.show()
     
+

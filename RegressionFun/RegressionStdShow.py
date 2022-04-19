@@ -13,10 +13,10 @@ def autolabel(rects):
         plt.text(rect.get_x()+rect.get_width()/2.- 0.2, 1.03*height, '%s' % int(height))
         
 '''
-所有类别放一块进行训练和测试
+对每个subject的回归结果进行预测和打印及绘图显示
 '''
-def RegressionAllPredictShow(featurefilename):
-    trainSet_x, trainSet_y, trainSet_y_label, testSet_x, testSet_y, testSet_y_label = TrainAndTestSetSelectForAllClass(featurefilename, mode=1)
+def RegressionResultShow(featurefilename):
+    trainSet_x, trainSet_y, trainSet_y_label, testSet_x, testSet_y, testSet_y_label = TrainAndTestSetSelectForAllClass(featurefilename, mode=2)#随机选取一半作为训练集一半作为测试集，由于训练集和测试集每次选择不同因此每次结果可能有差异
     
     ##############线性回归##############
     Linear_reg = LinearRegression().fit(trainSet_x, trainSet_y)
@@ -57,7 +57,53 @@ def RegressionAllPredictShow(featurefilename):
     SVM_error_value, SVM_std_value = GetStdForPredictAndTrue(SVM_all_predict_y, testSet_y)
     print('SVM回归预测值与真实值之间的标准差：{}'.format(SVM_std_value))
     ##############SVM回归##############
-        
+    
+    ##############打印结果##############
+    print('Linear_std_value:{}, Ridge_std_value:{}, Knn_std_value:{}, MLP_std_value:{}, SVM_std_value:{}'.format(Linear_std_value, Ridge_std_value, Knn_std_value, MLP_std_value, SVM_std_value))
+    RegressionStdNormalization = [Linear_std_value, Ridge_std_value, Knn_std_value, MLP_std_value, SVM_std_value]
+    RegressionStdNormalization =array(RegressionStdNormalization)
+    RegressionStdNormalization = (RegressionStdNormalization - min(RegressionStdNormalization)) / (max(RegressionStdNormalization) - min(RegressionStdNormalization))
+    print('标准差归一化后:{}'.format(RegressionStdNormalization))
+    ##############打印结果##############
+    
+    '''
+    figure(1)
+    plt.title('All')
+    plt.plot(range(len(testSet_y)),testSet_y,'k.-',label='true')
+    plt.plot(range(len(Linear_predict_y)),Linear_predict_y,'r.-',label='predict')
+    plt.legend()
+    
+    figure(2)
+    plt.title('1')
+    plt.plot(range(len(predict_y[0])),predict_y[0],'k.-',label='predict')#类1
+    plt.plot(range(len(true_y[0])),true_y[0],'r.-',label='true')#类1
+    plt.legend()
+    
+    figure(3)
+    plt.title('2')
+    plt.plot(range(len(predict_y[1])),predict_y[1],'k.-',label='predict')#类2
+    plt.plot(range(len(true_y[1])),true_y[1],'r.-',label='true')#类2
+    plt.legend()
+    
+    figure(4)
+    plt.title('3')
+    plt.plot(range(len(predict_y[2])),predict_y[2],'k.-',label='predict')#类3
+    plt.plot(range(len(true_y[2])),true_y[2],'r.-',label='true')#类3
+    plt.legend()
+    
+    figure(5)
+    plt.title('4')
+    plt.plot(range(len(predict_y[3])),predict_y[3],'k.-',label='predict')#类4
+    plt.plot(range(len(true_y[3])),true_y[3],'r.-',label='true')#类4
+    plt.legend()
+    
+    figure(6)
+    plt.title('5')
+    plt.plot(range(len(predict_y[4])),predict_y[4],'k.-',label='predict')#类5
+    plt.plot(range(len(true_y[4])),true_y[4],'r.-',label='true')#类5
+    plt.legend()    
+    '''
+    
     figure(0)
     plt.title('error')
     plt.plot(range(len(Linear_error_value)),Linear_error_value,'k.-',label='Linear')
@@ -156,55 +202,51 @@ def RegressionAllPredictShow(featurefilename):
     plt.show()
 
 '''
-单个类别进行训练和测试
+装载所有人的平均标准差文件
 '''
-def RegressionSingleClassPredictShow(featurefilename):   
-#     class_label =1
-    trainSet_x_1, trainSet_y_1, trainSet_y_label_1, testSet_x_1, testSet_y_1, testSet_y_label_1 = TrainAndTestSetSelectForSingleClass(featurefilename, 1, mode=1)
-    trainSet_x_2, trainSet_y_2, trainSet_y_label_2, testSet_x_2, testSet_y_2, testSet_y_label_2 = TrainAndTestSetSelectForSingleClass(featurefilename, 2, mode=1)
-    trainSet_x_3, trainSet_y_3, trainSet_y_label_3, testSet_x_3, testSet_y_3, testSet_y_label_3 = TrainAndTestSetSelectForSingleClass(featurefilename, 3, mode=1)
-    trainSet_x_4, trainSet_y_4, trainSet_y_label_4, testSet_x_4, testSet_y_4, testSet_y_label_4 = TrainAndTestSetSelectForSingleClass(featurefilename, 4, mode=1)
-    trainSet_x_5, trainSet_y_5, trainSet_y_label_5, testSet_x_5, testSet_y_5, testSet_y_label_5 = TrainAndTestSetSelectForSingleClass(featurefilename, 5, mode=1)
-    
-    ##############线性回归##############
-    ####类别1
-    Linear_reg_1 = LinearRegression().fit(trainSet_x_1, trainSet_y_1)
-    Linear_predict_y_1 = Linear_reg_1.predict(testSet_x_1)
-    #类别2
-    Linear_reg_2 = LinearRegression().fit(trainSet_x_2, trainSet_y_2)
-    Linear_predict_y_2 = Linear_reg_2.predict(testSet_x_2)
-    #类别3
-    Linear_reg_3 = LinearRegression().fit(trainSet_x_3, trainSet_y_3)
-    Linear_predict_y_3 = Linear_reg_3.predict(testSet_x_3)
-    #类别4
-    Linear_reg_4 = LinearRegression().fit(trainSet_x_4, trainSet_y_4)
-    Linear_predict_y_4 = Linear_reg_4.predict(testSet_x_4)
-    #类别5
-    Linear_reg_5 = LinearRegression().fit(trainSet_x_5, trainSet_y_5)
-    Linear_predict_y_5 = Linear_reg_5.predict(testSet_x_5)
-    ##############线性回归##############    
-    
-    figure(1)
-    plt.title('all class')
-    plt.plot(range(len(testSet_y_1)),testSet_y_1,'k.--',label='true')
-    plt.plot(range(len(Linear_predict_y_1)),Linear_predict_y_1,'k.-',label='predict')
-    plt.plot(range(len(testSet_y_2)),testSet_y_2,'r.--',label='true')
-    plt.plot(range(len(Linear_predict_y_2)),Linear_predict_y_2,'r.-',label='predict')
-    plt.plot(range(len(testSet_y_3)),testSet_y_3,'g.--',label='true')
-    plt.plot(range(len(Linear_predict_y_3)),Linear_predict_y_3,'g.-',label='predict')
-    plt.plot(range(len(testSet_y_4)),testSet_y_4,'b.--',label='true')
-    plt.plot(range(len(Linear_predict_y_4)),Linear_predict_y_4,'b.-',label='predict')
-    plt.plot(range(len(testSet_y_5)),testSet_y_5,'y.--',label='true')
-    plt.plot(range(len(Linear_predict_y_5)),Linear_predict_y_5,'y.-',label='predict')
-    plt.legend()    
+def LoadRegressionResultAnalysisFile(RegressionResultMeanStdfile):
+    with open(RegressionResultMeanStdfile, 'r') as csvfile:
+        lines = csv.reader(csvfile)
+        dataset = list(lines)
+        dataset = dataset[1:]#从第二行开始读取
         
-    plt.show()
+        force_integral_mean_std = dataset[0]
+        force_integral_mean_std = force_integral_mean_std[1:]
+        
+        i = 0
+        while i<5:
+            force_integral_mean_std[i] = float(force_integral_mean_std[i])
+            force_integral_mean_std[i] = round(force_integral_mean_std[i], 5)
+            i=i+1            
+    csvfile.close()
     
+    return force_integral_mean_std
+
+def autolabel2(rects):
+    for rect in rects:
+        height = rect.get_height()
+        plt.text(rect.get_x()+rect.get_width()/2.- 0.3, 1.03*height, '%s' % float(height), fontsize = 10)
+'''
+将所有人的平均标准差绘制出来
+'''       
+def MeanRegressionStdShow(RegressionResultMeanStdfile):
+    force_integral_mean_std = LoadRegressionResultAnalysisFile(RegressionResultMeanStdfile)
+    
+    name_list = ['Linear', 'Ridge', 'KNN', 'MLP', 'SVM']    
+    
+    figure(1)  
+    plt.title('Mean Std')  
+    autolabel2(plt.bar(name_list, force_integral_mean_std, width = 0.6, color='k', label='Linear'))
+    plt.bar(name_list, force_integral_mean_std, width = 0.6, color='r',  label='Ridge')
+    plt.bar(name_list, force_integral_mean_std, width = 0.6, color='g',  label='KNN')
+    plt.bar(name_list, force_integral_mean_std, width = 0.6, color='b',  label='MLP')
+    plt.bar(name_list, force_integral_mean_std, width = 0.6, color='y',  label='SVM')
+    plt.bar(name_list, force_integral_mean_std, width = 0.6, color='krgby')
+    plt.legend()
+    plt.ylim(0, 1)
+    plt.show()
+
    
-
-
-
-
 
 
 

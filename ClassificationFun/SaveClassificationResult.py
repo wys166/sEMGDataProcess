@@ -1,5 +1,6 @@
+
 from FileImport.ReadData import *
-from ClasserFun.FeatureProcess import *
+from ClassificationFun.FeatureProcess import *
 
 from sklearn.linear_model import LogisticRegression
 from sklearn.linear_model import RidgeClassifier
@@ -9,11 +10,11 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.svm import SVC
 
 '''
-保存每个受试者的分类结果保存到以该受试者名字命名的文件夹下
+每个受试者的分类结果保存到以该受试者的文件夹下
 '''
 def Save_OneSubject_Classer_Result(filepath):
     featurefilename = filepath + r'\\Feature.csv'
-    trainSet_x, trainSet_y, testSet_x, testSet_y = TrainAndTestSetSelect(featurefilename, mode=1)
+    trainSet_x, trainSet_y, testSet_x, testSet_y = TrainAndTestSetSelect(featurefilename, mode=2)#由于随机选取的训练集与测试集，每次结果可能有差异
     
     ###############LDA###############
     LDA_clf = LinearDiscriminantAnalysis(solver='eigen', shrinkage=None,).fit(trainSet_x, trainSet_y)
@@ -28,7 +29,6 @@ def Save_OneSubject_Classer_Result(filepath):
     ###############RidgeClassifier###############
     
     ###############logRegression###############
-    # clf = LogisticRegression(penalty='l2').fit(trainSet_x, trainSet_y)
     logRegression_clf = LogisticRegression(penalty='none').fit(trainSet_x, trainSet_y)
     log_predict_y = logRegression_clf.predict(testSet_x)
     log_accuracy = GetAllMeanAccuracy(log_predict_y, testSet_y)
@@ -65,7 +65,7 @@ def Save_OneSubject_Classer_Result(filepath):
     print('KNN正确率：{}%'.format(KNN_MultiAccuracy[1][0]))
     print('MLP正确率：{}%'.format(MLP_MultiAccuracy[1][0]))
     print('SVM正确率：{}%'.format(SVM_MultiAccuracy[1][0]))
-    fisrt_row = ['Classer/Label', 'mean', '1', '2', '3', '4', '5']
+    fisrt_row = ['Classifier/Label', 'mean', '1', '2', '3', '4', '5']
     LDA_row = LDA_MultiAccuracy[1]
     LDA_row.insert(0, 'LDA')
     Ridge_row = Ridge_MultiAccuracy[1]
@@ -81,13 +81,11 @@ def Save_OneSubject_Classer_Result(filepath):
     
     #################将相关参数保存到CSV文件中
     newdata = [fisrt_row, LDA_row, Ridge_row, log_row, KNN_row, MLP_row, SVM_row]
-    # newdata_t = List_Transpose(newdata)
-    with open(filepath + r'\\ClasserResult.csv', 'w', newline='') as csvfile:
+    with open(filepath + r'\\ClassificationResult.csv', 'w', newline='') as csvfile:
         spamwriter = csv.writer(csvfile, delimiter=',')
         spamwriter.writerows(newdata)
         csvfile.close()
     #################将相关参数保存到CSV文件中  
-
 
 
 

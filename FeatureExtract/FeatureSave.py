@@ -21,6 +21,13 @@ def ExtractFeatures(filename, Raw1_noise, Raw2_noise, force_speed):
     Envelope_2 = SlidingMeanFiltering(Envelope_2, 51)
     ################信号去噪################
     
+    # ################通过短时能量发进行活动段检测################
+    # short_energy=GetActivity(force)
+    # start_index,end_index,force_start_y,force_end_y,\
+    # raw1_start_y,raw1_end_y,raw2_start_y,raw2_end_y,\
+    # envelope1_start_y,envelope1_end_y,envelope2_start_y,envelope2_end_y=GetStartAndEndByShortEnergyUsingInterp1d(short_energy, force, Raw_1,Envelope_1,Raw_2,Envelope_2)
+    # ################通过短时能量发进行活动段检测################
+    
     ################通过力阈值进行活动段检测################
     start_index,end_index,force_start_y,force_end_y,\
     raw1_start_y,raw1_end_y,raw2_start_y,raw2_end_y,\
@@ -148,8 +155,7 @@ def ExtractFeatures(filename, Raw1_noise, Raw2_noise, force_speed):
         ##########表面肌电包洛信号时域特征##########
         
         print('共{}个特征，已提取{}个特征'.format(Num_Feature, i+1))
-        i = i + 1
-#     print(len(RMS_raw1))  
+        i = i + 1 
  
     return [MAV_raw1, RMS_raw1, Var_raw1, IEMG_raw1, WL_raw1, WAMP_raw1, SSC_raw1, ZC_raw1, SampEnValue_raw1,\
             PKF_raw1, MNF_raw1, MDF_raw1,\
@@ -170,9 +176,8 @@ feature_list = [['MAV_raw1', 'RMS_raw1', 'Var_raw1', 'IEMG_raw1', 'WL_raw1', 'WA
                  'force_mean', 'force_integral',\
                  'label']]
 def SaveFeatures(filepath, file_list):
-    noisefilename = filepath + r'\\' + '参考噪声.csv'
+    noisefilename = filepath + r'\\' + 'Reference.csv' #参考噪声
     Raw1_noise,Envelope1_noise,Raw2_noise,Envelope2_noise = LoadRawDataSetByChNum(noisefilename, CH=4)
-    
     
     length = len(file_list)
     
@@ -196,10 +201,13 @@ def SaveFeatures(filepath, file_list):
         csvfile.close()
     #################将相关参数保存到CSV文件中  
 ######################将提取的特征值保存下来#####################        
-        
-def main(filepath):
-    file_list = ['new_1.csv', 'new_2.csv', 'new_3.csv', 'new_4.csv', 'new_5.csv']
+ 
+'''
+filepath:存放数据集的路径
+'''       
+def ExtractAndSaveFeatureForPerSubject(filepath):
+    file_list = ['T1.csv', 'T2.csv', 'T3.csv', 'T4.csv', 'T5.csv']
     SaveFeatures(filepath, file_list)
     
-    
-      
+
+

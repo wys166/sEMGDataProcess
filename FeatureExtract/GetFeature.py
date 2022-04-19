@@ -192,9 +192,6 @@ def TDFeatureExtractForEnvelope(Envelope):
     i = 0
     while i < length:
         
-        
-        
-        
         i = i+1
     
     envelope_integral = envelope_integral                        #积分值
@@ -210,8 +207,6 @@ def List_Transpose(data):
     data = list(map(list, zip(*data)))    #转置
     return data
 ########列表转置########
-
-
 
 
 

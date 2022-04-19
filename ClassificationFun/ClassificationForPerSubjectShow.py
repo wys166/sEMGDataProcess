@@ -1,7 +1,7 @@
 from pylab import *
 
 from FileImport.ReadData import *
-from ClasserFun.FeatureProcess import *
+from ClassificationFun.FeatureProcess import *
 
 from sklearn.linear_model import LogisticRegression
 from sklearn.linear_model import RidgeClassifier
@@ -17,11 +17,11 @@ def autolabel(rects):
         height = rect.get_height()
         plt.text(rect.get_x()+rect.get_width()/2.- 0.2, 1.03*height, '%s' % float(height))
 
-def ClasserAccuracy(featurefilename):
-    trainSet_x, trainSet_y, testSet_x, testSet_y = TrainAndTestSetSelect(featurefilename, mode=1)
+def ClassificationAccuracy(featurefilename):
+    trainSet_x, trainSet_y, testSet_x, testSet_y = TrainAndTestSetSelect(featurefilename, mode=2)#由于随机选取的训练集与测试集，每次结果可能有差异
     
     ###############LDA###############
-    LDA_clf = LinearDiscriminantAnalysis(solver='eigen', shrinkage=None,).fit(trainSet_x, trainSet_y)
+    LDA_clf = LinearDiscriminantAnalysis(solver='eigen', shrinkage=None).fit(trainSet_x, trainSet_y)
     LDA_predict_y = LDA_clf.predict(testSet_x)
     LDA_accuracy = GetAllMeanAccuracy(LDA_predict_y, testSet_y)
     ###############LDA###############
@@ -33,7 +33,6 @@ def ClasserAccuracy(featurefilename):
     ###############RidgeClassifier###############
     
     ###############logRegression###############
-    # clf = LogisticRegression(penalty='l2').fit(trainSet_x, trainSet_y)
     logRegression_clf = LogisticRegression(penalty='none').fit(trainSet_x, trainSet_y)
     log_predict_y = logRegression_clf.predict(testSet_x)
     log_accuracy = GetAllMeanAccuracy(log_predict_y, testSet_y)
@@ -57,7 +56,6 @@ def ClasserAccuracy(featurefilename):
     SVM_accuracy = GetAllMeanAccuracy(SVM_predict_y, testSet_y)
     ###############KNN###############
     
-    
     print('LDA正确率：{}%'.format(LDA_accuracy))
     print('岭回归正确率：{}%'.format(Ridge_accuracy))
     print('逻辑回归正确率：{}%'.format(log_accuracy))
@@ -78,33 +76,36 @@ def ClasserAccuracy(featurefilename):
     figure(1)
     plt.title('all classers')
     name_list=['LDA', 'Ridge', 'Log', 'KNN', 'MLP', 'SVM']
-    autolabel(plt.bar(range(len(Accuracy)), Accuracy, color='rgbkyc', tick_label=name_list))
+    autolabel(plt.bar(range(len(Accuracy)), Accuracy, color=['#45075B','#423D84','#2D6F8E', '#1E998A', '#77D052', '#DFE318'], alpha=0.8, tick_label=name_list))
     
     name_list=LDA_MultiAccuracy[0]
     figure(2)  
     plt.title('LDA')  
-    autolabel(plt.bar(range(len(LDA_MultiAccuracy[1])), LDA_MultiAccuracy[1], color='rgbkyc', tick_label=name_list))
+    autolabel(plt.bar(range(len(LDA_MultiAccuracy[1])), LDA_MultiAccuracy[1], color=['#45075B','#423D84','#2D6F8E', '#1E998A', '#77D052', '#DFE318'], alpha=0.8, tick_label=name_list))
     
     figure(3)
     plt.title('Ridge')    
-    autolabel(plt.bar(range(len(Ridge_MultiAccuracy[1])), Ridge_MultiAccuracy[1], color='rgbkyc', tick_label=name_list))
+    autolabel(plt.bar(range(len(Ridge_MultiAccuracy[1])), Ridge_MultiAccuracy[1], color=['#45075B','#423D84','#2D6F8E', '#1E998A', '#77D052', '#DFE318'], alpha=0.8, tick_label=name_list))
     
     figure(4)  
     plt.title('log')  
-    autolabel(plt.bar(range(len(log_MultiAccuracy[1])), log_MultiAccuracy[1], color='rgbkyc', tick_label=name_list))
+    autolabel(plt.bar(range(len(log_MultiAccuracy[1])), log_MultiAccuracy[1], color=['#45075B','#423D84','#2D6F8E', '#1E998A', '#77D052', '#DFE318'], alpha=0.8, tick_label=name_list))
     
     figure(5)  
     plt.title('KNN')  
-    autolabel(plt.bar(range(len(KNN_MultiAccuracy[1])), KNN_MultiAccuracy[1], color='rgbkyc', tick_label=name_list))
+    autolabel(plt.bar(range(len(KNN_MultiAccuracy[1])), KNN_MultiAccuracy[1], color=['#45075B','#423D84','#2D6F8E', '#1E998A', '#77D052', '#DFE318'], alpha=0.8, tick_label=name_list))
     
     figure(6)   
     plt.title('MLP') 
-    autolabel(plt.bar(range(len(MLP_MultiAccuracy[1])), MLP_MultiAccuracy[1], color='rgbkyc', tick_label=name_list))
+    autolabel(plt.bar(range(len(MLP_MultiAccuracy[1])), MLP_MultiAccuracy[1], color=['#45075B','#423D84','#2D6F8E', '#1E998A', '#77D052', '#DFE318'], alpha=0.8, tick_label=name_list))
     
     figure(7)   
     plt.title('SVM') 
-    autolabel(plt.bar(range(len(SVM_MultiAccuracy[1])), SVM_MultiAccuracy[1], color='rgbkyc', tick_label=name_list))
+    autolabel(plt.bar(range(len(SVM_MultiAccuracy[1])), SVM_MultiAccuracy[1], color=['#45075B','#423D84','#2D6F8E', '#1E998A', '#77D052', '#DFE318'], alpha=0.8, tick_label=name_list))
     
     
     plt.show()
     
+
+
+

@@ -6,7 +6,6 @@ force_energy_th_end = 5
 activity_length = 800
 #####################力的短时能量阈值
 
-
 def GetActivity(Force):
     length=len(Force)
     
@@ -33,6 +32,10 @@ def GetActivity(Force):
     return short_energy
 
 
+'''
+Force:力数据
+Force_index：力数据索引
+'''
 def GetStartAndEndByShortEnergy(short_energy, Force, Force_index, Raw_1,Envelope_1,Raw_2,Envelope_2):    
     length=len(short_energy)
     
@@ -98,6 +101,9 @@ def GetStartAndEndByShortEnergy(short_energy, Force, Force_index, Raw_1,Envelope
     print("活动段个数为："+str(len(end_index)))
     return start_index,end_index,force_start_y,force_end_y,raw1_start_y,raw1_end_y,raw2_start_y,raw2_end_y,envelope1_start_y,envelope1_end_y,envelope2_start_y,envelope2_end_y      
 
+'''
+force:力数据
+'''
 def GetStartAndEndByShortEnergyUsingInterp1d(short_energy, force, Raw_1,Envelope_1,Raw_2,Envelope_2):    
     length=len(short_energy)
     
@@ -145,7 +151,7 @@ def GetStartAndEndByShortEnergyUsingInterp1d(short_energy, force, Raw_1,Envelope
             find_flag=False
             
         if len(end_index) > 0 and len(end_index) == len(start_index) and end_index[-1] - start_index[-1] < activity_length + 300:
-            print('删除掉的活动段长度：{}'.format(end_index[-1] - start_index[-1]))
+            print('删除掉的错误活动段长度：{}'.format(end_index[-1] - start_index[-1]))
             del start_index[-1]
             del force_start_y[-1]
             del raw1_start_y[-1]
@@ -163,8 +169,6 @@ def GetStartAndEndByShortEnergyUsingInterp1d(short_energy, force, Raw_1,Envelope
         i=i+1
     print("活动段个数为："+str(len(end_index)))
     return start_index,end_index,force_start_y,force_end_y,raw1_start_y,raw1_end_y,raw2_start_y,raw2_end_y,envelope1_start_y,envelope1_end_y,envelope2_start_y,envelope2_end_y      
-    
-
 
 def ActivityShow(filename):
     force,Raw_1,Envelope_1,Raw_2,Envelope_2=LoadDataSetAfterProcess(filename)
@@ -180,6 +184,6 @@ def ActivityShow(filename):
     
     plt.show()
     
+   
     
- 
     

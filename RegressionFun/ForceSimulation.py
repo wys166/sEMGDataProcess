@@ -8,7 +8,7 @@ from ActivityDetect.GetActivity import *
 from Denoise.ForceDenoiseProcess import *
 from ActivityDetect.ForceActivity import *
 
-########函数:3:找到data中与specialvalue接近的值的索引位置#########
+########函数:找到data中与specialvalue接近的值的索引位置#########
 def Get_Special_Index(data, specialvalue):
     length = len(data)
     
@@ -21,14 +21,14 @@ def Get_Special_Index(data, specialvalue):
     value_min = min(value)
     
     return value.index(value_min)
-########函数3:找到data中与specialvalue接近的值的索引位置#########
-
+########函数:找到data中与specialvalue接近的值的索引位置#########
 
 '''
 对力活动段内的信号进行预测并构建三角形
-predict_force_index:第几个力预测的样本，小于40，0~39
+predict_force_index:第几个力预测的样本，测试集每种一共40个，因此要小于40，范围是:0~39
+用此函数时需要保证ActivityDetect.ForceActivity文件中设置的参数要与特征提取时设置的参数一致，因为每个subject的个体差异性以及所做抓我动作的标准程度不同，参数设置可能不同
 '''
-def DrawActivityData(forcefilename, featurefilename, predict_force_index):
+def DrawSimulationForceData(forcefilename, featurefilename, predict_force_index):
     sampling_rate=1000
     force,Raw_1,Envelope_1,Raw_2,Envelope_2=LoadDataSetAfterProcess(forcefilename)
 
@@ -41,8 +41,8 @@ def DrawActivityData(forcefilename, featurefilename, predict_force_index):
     envelope1_start_y,envelope1_end_y,envelope2_start_y,envelope2_end_y=GetStartAndEndByForceUsingInterp1d(force, Raw_1,Envelope_1,Raw_2,Envelope_2, force_speed)
     ################使用力阈值的活动段检测算法################
     
-    trainSet_x, trainSet_y, trainSet_y_label, testSet_x, testSet_y, testSet_y_label = TrainAndTestSetSelectForAllClass(featurefilename, mode=1)
-        
+    trainSet_x, trainSet_y, trainSet_y_label, testSet_x, testSet_y, testSet_y_label = TrainAndTestSetSelectForAllClass(featurefilename, mode=1)#偶数做训练，奇数做测试，保证一半用于训练一半用于测试方便查找样本，
+    
     ##############MLP回归##############
     MLP_reg = MLPRegressor(hidden_layer_sizes=(500), activation='identity', solver='lbfgs', alpha=0.00001, batch_size='auto', learning_rate='constant').fit(trainSet_x, trainSet_y)
     MLP_all_predict_y = MLP_reg.predict(testSet_x)
@@ -54,13 +54,12 @@ def DrawActivityData(forcefilename, featurefilename, predict_force_index):
     regression_predict_y = MLP_predict_y
     regression_true_y = MLP_true_y
     
-    
     ###########采集的活动段内的力曲线构造三角形###########
     activity_force = list(force[start_index[2*predict_force_index+1]:end_index[2*predict_force_index+1]])#训练集中偶数作为训练，奇数作为测试，活动段内的力值大小
     activity_force_axis = range(len(activity_force))#活动段内的力对应的X轴坐标
     
     activity_force_max_value = np.max(activity_force)#最大力
-    activity_force_max_value_index = activity_force.index(activity_force_max_value)+30#最大力对应的索引坐标后移动30个点将力的凸起点中心作为力三角形的顶点
+    activity_force_max_value_index = activity_force.index(activity_force_max_value)+30#最大力对应的索引坐标后移动30个点将力的凸起点中心作为力三角形的顶点(握力信号延迟所致)
     
     activity_force_front = activity_force[:activity_force_max_value_index]#实际力三角形左边的边对应的y坐标
     activity_force_front_axis = activity_force_axis[:activity_force_max_value_index]#实际力三角形左边的边对应的x坐标
@@ -110,17 +109,22 @@ def DrawActivityData(forcefilename, featurefilename, predict_force_index):
      
     print('实际的力从小到大的变化斜率：{}'.format(round(p_front[0], 6)))
     print('预测的力从小到大的变化斜率：{}'.format(round(p_predict_front[0], 6))) 
-        
-    figure(1)
-    plt.title(str(force_speed))
-    plt.plot(activity_force_axis,activity_force,'k-',label='force')
-#     plt.plot(activity_force_front_axis,activity_force_front_fit,'r-',label='force_front')
-    plt.plot(true_triangle_x, true_triangle_y,'b-',label='ture force')
-    plt.plot(predict_triangle_x, predict_triangle_y,'g--',label='predict force')
-
+    
+    figure(0)
+    plt.title('force')
+    plt.plot(range(len(force)),force,'y-',label='force')
+    plt.plot(start_index,force_start_y,'ro',label='start_point')
+    plt.plot(end_index,force_end_y,'bs',label='end_point')
     plt.legend()
     
+    figure(1)
+    plt.plot(activity_force_axis,activity_force,'k-',label='force')
+    plt.plot(true_triangle_x, true_triangle_y,'b-',label='ture force')
+    plt.plot(predict_triangle_x, predict_triangle_y,'r--',label='predict force')
+    plt.xticks([0, 2500, 5000]) #每种抓握模式对应的横轴长度不一样，因此需要根据抓握模式显示横轴的长度
+    
     plt.show()
-       
+    
+   
 
 

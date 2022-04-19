@@ -51,7 +51,7 @@ def RegressionResultShow(RegressionResultFilename):
     mean_slope_true = [mean_slope_true_1, mean_slope_true_2, mean_slope_true_3, mean_slope_true_4, mean_slope_true_5]
     
     figure(1)
-    plt.title('Linear slope')
+    plt.title('slope')
     plt.plot(range(len(slope_true)),slope_true,'k.-',label='true')#类1
     plt.plot(range(len(slope_predict)),slope_predict,'r.--',label='predict')#类1
     plt.legend()
@@ -59,22 +59,21 @@ def RegressionResultShow(RegressionResultFilename):
     name_list=np.array([1, 2, 3, 4, 5])
     
     figure(2)
-    plt.title('Linear force integral')
+    plt.title('force integral')
     plt.plot(name_list,mean_force_integral_true,'k.-',label='true')#类1
     plt.plot(name_list,mean_force_integral_predict,'r.--',label='predict')#类1
     plt.legend()
     
     figure(3)
-    plt.title('Linear force slope')
+    plt.title('force slope')
     plt.plot(name_list,mean_slope_true,'k.-',label='true')#类1
     plt.plot(name_list,mean_slope_predict,'r.--',label='predict')#类1
     plt.legend()
     
-    name_list2=np.array([2, 3, 4, 5, 6])
     figure(4)  
-    plt.title('linear ')  
-    autolabel(plt.bar(name_list-0.2, mean_force_integral_true, width = 0.4, color='r', label='true'))
-    autolabel(plt.bar(name_list+0.2, mean_force_integral_predict, width = 0.4, color='b', label='predict'))
+    plt.title('IForce ')  
+    autolabel(plt.bar(name_list-0.2, mean_force_integral_true, width = 0.4, color='#423D84', label='true'))
+    autolabel(plt.bar(name_list+0.2, mean_force_integral_predict, width = 0.4, color='#1E998A', label='predict'))
     plt.legend()
     
     plt.show()

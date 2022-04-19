@@ -61,7 +61,6 @@ weight：权值
 def LMSFiltering(Xn, Dn, order, u):
     itr = len(Xn)
     error=array(np.zeros(itr)) #误差序列,error[k]表示第k次迭代时预期输出与实际输入的误差
-#     print(size(error,0))
     weight=np.matrix(np.zeros((order, itr)))#权值    
     
     i=order
@@ -69,7 +68,6 @@ def LMSFiltering(Xn, Dn, order, u):
         x=Xn[i-order:i]
         x=np.matrix(x[::-1])#order阶滤波器抽头输入
         y=x * weight[:,i-1]#滤波器输出        
-#         print(y[0, 0])
         error[i] = Dn[i] - y[0, 0] #计算误差
         weight[:,i]=weight[:,i-1] + 2*u*error[i]*np.transpose(x)#滤波器权值计算的迭代式
         
@@ -91,19 +89,14 @@ def LMSFiltering(Xn, Dn, order, u):
 ########应用自适应滤波噪声抵消算法LMS，显示滤波效果#########
 def LMSFilterShow(filename1, filename2):    
     sampling_rate=1000
-    Force,Force_index,Raw_1,Envelope_1,Raw_2,Envelope_2=LoadRawDataSet(filename1)
+    force, Raw_1,Envelope_1,Raw_2,Envelope_2 = LoadDataSetAfterProcess(filename1)
     raw_1,envelope_1,raw_2,envelope_2 = LoadRawDataSetByChNum(filename2, CH=4)
     
     start_index = 0
-    end_index = 100000  #59400    
+    end_index = 100000      
     dn=Raw_1[start_index:end_index]
     xn=raw_1[0:end_index-start_index]
-    print(len(dn))
-    print(len(xn))
     
-    #9阶，0.0000053的步长修正因子下，信噪比能达到45.0492
-    #10阶，0.00000479的步长修正因子下，信噪比能达到53.5609
-    #11阶，0.00000464的步长修正因子下，信噪比能达到53.9782
     yn, error, weight=LMSFiltering(xn, dn, 9, 0.0000053)   
     print(len(dn))
     print(len(error))
@@ -184,7 +177,6 @@ weight：权值
 def NLMSFiltering(Xn, Dn, order, n):
     itr = np.min([int(len(Dn)), int(len(Xn))])
     error=array(np.zeros(itr)) #误差序列,error[k]表示第k次迭代时预期输出与实际输入的误差
-#     print(size(error,0))
     weight=np.matrix(np.zeros((order, itr)))#权值    
     
     i=order
@@ -192,11 +184,8 @@ def NLMSFiltering(Xn, Dn, order, n):
         x=Xn[i-order:i]
         x=np.matrix(x[::-1])#order阶滤波器抽头输入
         y=x * weight[:,i-1]#滤波器输出 
-      
-#         print(y[0, 0])
         error[i] = Dn[i] - y[0, 0] #计算误差
         u = n / (x * x.transpose() + 0.00000001)
-#         print(u[0, 0])
         weight[:,i]=weight[:,i-1] + u[0, 0]*error[i]*np.transpose(x)#滤波器权值计算的迭代式
         
         i=i+1
@@ -217,18 +206,14 @@ def NLMSFiltering(Xn, Dn, order, n):
 ########应用自适应滤波噪声抵消算法NLMS，显示滤波效果#########
 def NLMSFilterShow(filename1, filename2):    
     sampling_rate=1000
-    Force,Force_index,Raw_1,Envelope_1,Raw_2,Envelope_2=LoadRawDataSet(filename1)
+    force, Raw_1,Envelope_1,Raw_2,Envelope_2 = LoadDataSetAfterProcess(filename1)
     raw_1,envelope_1,raw_2,envelope_2 = LoadRawDataSetByChNum(filename2, CH=4)
         
     start_index = 0
-    end_index = 100000    
+    end_index = 10000    
     dn=Raw_1[start_index:end_index]
     xn=raw_1[0:end_index-start_index]
     
-    #原信号信噪比为28.9798 
-    #9阶，0.0052的步长修正因子下，信噪比能达到47.8067
-    #10阶，0.00605的步长修正因子下，信噪比能达到53.4643
-    #11阶，0.00716的步长修正因子下，信噪比能达到53.5039
     yn, error, weight=NLMSFiltering(xn, dn, 9, 0.0052)  
     noise = array(dn) - array(error)
     
@@ -244,7 +229,6 @@ def NLMSFilterShow(filename1, filename2):
     
     r_f, p_value = scipy.stats.pearsonr(power_spectrum_xn, power_spectrum_yn)#原噪声与估计噪声之间的相关性
     print("频域内NLMS算法下噪声相关性:{}".format(r_f))
-    
     
     '''
     figure(1)
@@ -272,37 +256,37 @@ def NLMSFilterShow(filename1, filename2):
     
     
     figure(0)
-    plt.plot(range(len(dn)),dn,'r-',label='dn')
+    plt.plot(range(len(dn)),dn,'k-',label='raw sEMG')
     plt.legend()    
     figure(1)
-    plt.plot(freqs[0:-1],power_spectrum_xn[0:-1],'r.-',label='power_spectrum_xn')
+    plt.plot(freqs[0:-1],power_spectrum_xn[0:-1],'k.-',label='power spectrum density')
     plt.legend()
     figure(2)
-    plt.plot(freqs[0:],power_spectrum_dn[0:],'r.-',label='power_spectrum_dn')
+    plt.plot(freqs[0:],power_spectrum_dn[0:],'k.-',label='before preprocessing')
     plt.legend()
     figure(3)
-    plt.plot(freqs[0:],power_spectrum_error[0:],'r.-',label='power_spectrum_error')
+    plt.plot(freqs[0:],power_spectrum_error[0:],'k.-',label='NLMS')
     plt.legend()
     figure(4)
     plt.plot(freqs[0:],power_spectrum_yn[0:],'r.-',label='power_spectrum_yn')
     plt.legend()
-#     figure(5)
-#     plt.plot(freqs[0:],power_spectrum_dn[0:],'r.',label='power_spectrum_dn')
-#     plt.plot(freqs[0:],power_spectrum_error[0:],'b.',label='power_spectrum_error')
-#     plt.legend()
-    
+    figure(5)
+    plt.plot(freqs[0:],power_spectrum_dn[0:],'r.',label='power_spectrum_dn')
+    plt.plot(freqs[0:],power_spectrum_error[0:],'b.',label='power_spectrum_error')
+    plt.legend()
+   
+    figure(6)
+    plt.plot(range(len(raw_1[start_index:end_index])),raw_1[start_index:end_index],'k-',label='raw sEMG')
+    plt.legend() 
     
     plt.show()
 ########应用自适应滤波噪声抵消算法NLMS，显示滤波效果#########
  
     
 ########LMS与NLMS两种算法下得到的噪声yn在频域内的相关性比较#########    
-'''
-FIR滤波器的阶数分别在9、10、11阶下
-'''
 def CorrelationShow_Compare_LMS_NLMS(filename1, filename2): 
     sampling_rate=1000
-    Force,Force_index,Raw_1,Envelope_1,Raw_2,Envelope_2=LoadRawDataSet(filename1)
+    force, Raw_1,Envelope_1,Raw_2,Envelope_2 = LoadDataSetAfterProcess(filename1)
     raw_1,envelope_1,raw_2,envelope_2 = LoadRawDataSetByChNum(filename2, CH=4)
         
     start_index = 0
@@ -372,15 +356,12 @@ def CorrelationShow_Compare_LMS_NLMS(filename1, filename2):
 '''
 def BandstopFilterShow(filename1, filename2):    
     sampling_rate=1000
-    Force,Force_index,Raw_1,Envelope_1,Raw_2,Envelope_2=LoadRawDataSet(filename1)
+    force, Raw_1,Envelope_1,Raw_2,Envelope_2 = LoadDataSetAfterProcess(filename1)
     raw_1,envelope_1,raw_2,envelope_2 = LoadRawDataSetByChNum(filename2, CH=4)
     
     start_index = 0
-    end_index = 100000   
-    Raw = raw_1[start_index:end_index]    
-    
-#     dn=Envelope_1[:100000]
-#     xn=envelope_1[:100000]
+    end_index = 10000   
+    Raw = Raw_1[start_index:end_index]    
     
     Raw_Filter = ButterBandstopFilter(Raw, 49, 51, sampling_rate)
     
@@ -394,7 +375,7 @@ def BandstopFilterShow(filename1, filename2):
     plt.plot(freqs[0:],power_spectrum_raw[0:],'r.-',label='power_spectrum_raw')
     plt.legend()
     figure(2)
-    plt.plot(freqs[0:],power_spectrum_raw_filter[0:],'r.-',label='power_spectrum_raw_filter')
+    plt.plot(freqs[0:],power_spectrum_raw_filter[0:],'k.-',label='band stop filter')
     plt.legend()  
     
     plt.show()  
@@ -403,10 +384,7 @@ def BandstopFilterShow(filename1, filename2):
 ########显示信号的功率表密度或功率谱#########
 def PowerSpectralShow(filename):
     sampling_rate=1000
-    Force,Force_index,Raw_1,Envelope_1,Raw_2,Envelope_2=LoadRawDataSet(filename)
-#     Raw_2,Envelope_1 = LoadRawDataSetByChNum(filename, CH=2)
-#     Raw_1,Envelope_1,Raw_2,Envelope_2 = LoadRawDataSetByChNum(filename, CH=4)
-#     Raw_1=Envelope_1
+    force, Raw_1,Envelope_1,Raw_2,Envelope_2 = LoadDataSetAfterProcess(filename)
     start_index = 0
     end_index = 2500   
     sig = Raw_1[start_index:end_index]
@@ -444,6 +422,5 @@ def PowerSpectralShow(filename):
     
     plt.show()
 ########显示信号的功率表密度或功率谱#########
-
 
 

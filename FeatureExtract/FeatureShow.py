@@ -12,8 +12,8 @@ def SampEnShow(filename):
     
     ################信号去噪################
     force = ButterLowFilter(force, 5, sampling_rate)#力去噪
-    yn, error, weight=NLMSFiltering(xn, Raw_1, 9, 0.0052) #表面肌电原始信号去噪
-    yn, error, weight=NLMSFiltering(xn, Raw_2, 9, 0.0052) #表面肌电原始信号去噪
+    # yn, error, weight=NLMSFiltering(xn, Raw_1, 9, 0.0052) #表面肌电原始信号去噪
+    # yn, error, weight=NLMSFiltering(xn, Raw_2, 9, 0.0052) #表面肌电原始信号去噪
     Envelope_1 = SlidingMeanFiltering(Envelope_1, 51)
     Envelope_2 = SlidingMeanFiltering(Envelope_2, 51)
     ################信号去噪################
@@ -233,8 +233,7 @@ def SingleFeatureShow(featurefilename):
     force_integral = normalization_feature_value[-2] #力积分值
     
     feature_single_ch1, feature_single_ch2 = SameFeatrueSeparateShow(SampEnValue_envelope, 5)#5个类别
-    
-    
+       
     figure(0)
     plt.title('force_mean')
     plt.plot(range(len(force_mean[0:100])),force_mean[0:100],'k.-',label='1')
@@ -278,7 +277,7 @@ def SingleFeatureShow(featurefilename):
     plt.show()
 
 '''
-本函数用于5种速度下的握力随时间积分值的大小
+本函数用于5种速度下的握力随时间积分值的大小显示
 '''    
 def Integral_forceShow(featurefilename): 
     feature_value, feature_name, singleCh_feature_name = LoadFeatures(featurefilename)
@@ -368,5 +367,4 @@ def Integral_forceShow(featurefilename):
     
     plt.show()
         
-
 

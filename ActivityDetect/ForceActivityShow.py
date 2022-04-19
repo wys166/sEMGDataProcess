@@ -1,7 +1,9 @@
 from ActivityDetect.ForceActivity import *
 from Denoise.ForceDenoiseProcess import *
 
-
+'''
+肌肉收缩活动段检测
+'''
 def ForceActivity_Show(filename):
     sampling_rate = 1000
     force_speed = int(filename[-5])#根据文件名称中的倒数第五位确定是哪种速度下的力
@@ -30,11 +32,11 @@ def ForceActivity_Show(filename):
     plt.plot(end_index,force_end_y,'bs',label='end_point')    
     plt.legend()
     
-    
+
     figure(3)
     plt.plot(range(len(Raw_1)),Raw_1,'k-',label='raw1')
-    # plt.plot(range(len(Raw_2)),Raw_2,'b-',label='raw2')
-    # plt.plot(range(len(force)),force,'y-',label='force')
+    plt.plot(range(len(Raw_2)),Raw_2,'b-',label='raw2')
+    plt.plot(range(len(force)),force,'y-',label='force')
     plt.plot(start_index,raw1_start_y,'ro',label='start_point')
     plt.plot(end_index,raw1_end_y,'bs',label='end_point')
     plt.legend()
@@ -45,8 +47,8 @@ def ForceActivity_Show(filename):
     plt.plot(end_index,envelope2_end_y,'bs',label='end_point')
     plt.legend()
     
-    
     plt.show()
+
 
 
 

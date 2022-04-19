@@ -1,8 +1,3 @@
-'''
-Created on 2021年10月12日
-
-@author: Adm
-'''
 # _*_ coding=utf-8 _*_
 import numpy as np
 from pylab import *
@@ -14,9 +9,54 @@ import matplotlib
 from scipy import signal
 from scipy import interpolate
 
-from GlobalParameter.Parameter import *
 
+########函数#########
+def LoadRawDataSetByChNum(filename, CH=2):   ####################力信号、两路包络信号和两路原始信号
+    Envelope_1=[]
+    Raw_1=[]
+    Envelope_2=[]
+    Raw_2=[]   
+        
+    i=0
+    j=0
+    with open(filename, 'r') as csvfile:
+        lines = csv.reader(csvfile)
+        dataset = list(lines)
+        x_line=size(dataset,0)  #####行
+        y_line=size(dataset,1)  #####列
+        while i<x_line:
+            j=0
+            while j<y_line:
+                dataset[i][j]=np.int(dataset[i][j])
+                if CH==2:
+                    if j==0:
+                        Raw_1.append(dataset[i][j])                                           
+                    elif j==1:
+                        Envelope_1.append(dataset[i][j])
+                elif CH==4:    
+                    if j==0:
+                        Raw_1.append(dataset[i][j])                                           
+                    elif j==1:
+                        Envelope_1.append(dataset[i][j])
+                    elif j==2:
+                        Raw_2.append(dataset[i][j])                    
+                    elif j==3:
+                        Envelope_2.append(dataset[i][j])                    
+                    
+                j=j+1 
+            i=i+1            
+    csvfile.close()
+    print('数据总长度：'+str(len(dataset))) 
+    if CH==2:
+        return Raw_1,Envelope_1
+    elif CH==4:
+        return Raw_1,Envelope_1,Raw_2,Envelope_2
+########函数#########
 
+'''
+filename：文件名
+force/Raw/Envelope：力/表面肌电原始信号/表面肌电包络信号
+'''
 def LoadDataSetAfterProcess(filename):   ####################力信号、两路包络信号和两路原始信号
     force=[]
     Envelope_1=[]
@@ -54,12 +94,12 @@ def LoadDataSetAfterProcess(filename):   ####################力信号、两路�
     
     return force, Raw_1,Envelope_1,Raw_2,Envelope_2 
 
-########函数1:装载特征值文件的函数#########
 ########列表转置########
 def List_Transpose(data):
     data = list(map(list, zip(*data)))    #转置
     return data
 ########列表转置########
+
 '''
 featurefilename：提取的特征值文件
 返回值：
@@ -74,10 +114,8 @@ def LoadFeatures(featurefilename):   ####################力信号、两路包�
         lines = csv.reader(csvfile)
         dataset = list(lines)
         feature_name = dataset[0]
-#         feature_name = feature_name[0:-1]#去除标签后的特征值名称
         feature_value = dataset[1:] #特征值数值
         feature_value = List_Transpose(feature_value)#特征值转置
-#         feature_value = feature_value[0:-1]#去掉标签，此时特征值按行排列，一行代表同一个特征值
         
         x_line=size(feature_value,0)  #####行，有多少种特征值
         y_line=size(feature_value,1)  #####列，一种特征值提取了多少个
@@ -124,7 +162,6 @@ def FeatureNormalization(feature_value):
     
     return normalization_feature_value #返回归一化特征值
 #########将feature_value特征值归一化#########
-########函数1:装载特征值文件的函数#########
 
 #########将feature_value特征值归一化#########
 '''
@@ -186,7 +223,7 @@ def LoadRegressionResultFile(RegressionResultFilename):
                 elif j==1:
                     force_integral_true.append(dataset[i][j])
                 elif j==2:
-                    force_integral_predict.append(dataset[i][j]-Rest_raw2)                    
+                    force_integral_predict.append(dataset[i][j])                    
                 elif j==3:
                     slope_true.append(dataset[i][j])  
                 elif j==4:
@@ -200,11 +237,6 @@ def LoadRegressionResultFile(RegressionResultFilename):
     return y_label, force_integral_true, force_integral_predict, slope_true, slope_predict
 #########将回归得到的结果读取处理#########
 
-
-########函数1:装载特征值文件的函数#########
-def ResampleData(data, num):
-    newdata = signal.resample(data, num)
-    return newdata
 
 
 

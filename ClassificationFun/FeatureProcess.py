@@ -2,6 +2,11 @@ from FileImport.ReadData import *
 import random
 from _operator import itemgetter
 
+
+'''
+mode=1:偶数作训练，奇数作测试
+mode=2:按一定比例随机挑选测试集与训练集
+'''
 def TrainAndTestSetSelect(featurefilename, mode=1):
     feature_value, feature_name, singleCh_feature_name = LoadFeatures(featurefilename)
     normalization_feature_value = FeatureNormalization(feature_value)
@@ -14,7 +19,7 @@ def TrainAndTestSetSelect(featurefilename, mode=1):
     testSet_x = []
     testSet_y =[]
     
-    ratio = 6#训练集所占的比例，ratio成
+    ratio = 5#训练集所占的比例，ratio/10的比例
     
     i=0
     while i < sample_num:
@@ -26,7 +31,7 @@ def TrainAndTestSetSelect(featurefilename, mode=1):
                 testSet_x.append(x[i])
                 testSet_y.append(y[i])
         elif mode == 2:
-            if random.randint(0, 10) <=ratio:
+            if random.randint(0, 10) < ratio:
                 trainSet_x.append(x[i])
                 trainSet_y.append(y[i])
             else:
@@ -58,6 +63,7 @@ def GetAllMeanAccuracy(predict_label, true_label):
     
     return round(accuracy, 2)
 
+#####################################################################计算识别精度
 '''
 根据预测值与实际值获得每种类别的平均准确率
 '''

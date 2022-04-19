@@ -12,13 +12,10 @@ mode=2:按一定比例随机挑选测试集与训练集
 '''
 def TrainAndTestSetSelectForAllClass(featurefilename, mode=1):
     feature_value, feature_name, singleCh_feature_name = LoadFeatures(featurefilename)
-    # print(feature_name)
-    # print(singleCh_feature_name)
     normalization_feature_value = FeatureNormalizationExceptForceIntegral(feature_value)#力随时间的积分值未进行归一化
     y_label = normalization_feature_value[-1] #类别标签
     y = normalization_feature_value[-2] #力随时间的积分值
     x = List_Transpose(normalization_feature_value[:-2]) #sEMG特征值
-    # print(len(x[0]))
     sample_num = len(y)
     
     trainSet_x = []
@@ -28,12 +25,12 @@ def TrainAndTestSetSelectForAllClass(featurefilename, mode=1):
     testSet_y =[]
     testSet_y_label =[]
     
-    ratio = 6#训练集所占的比例，ratio成
+    ratio = 5#训练集所占的比例，ratio/10的比例
     
     i=0
     while i < sample_num:
         if mode == 1:            
-            if i%2 == 0:
+            if i%2 == 1:
                 trainSet_x.append(x[i])
                 trainSet_y.append(y[i])
                 trainSet_y_label.append(y_label[i])
@@ -42,7 +39,7 @@ def TrainAndTestSetSelectForAllClass(featurefilename, mode=1):
                 testSet_y.append(y[i])
                 testSet_y_label.append(y_label[i])
         elif mode == 2:
-            if random.randint(0, 10) <=ratio:
+            if random.randint(0, 10) < ratio:
                 trainSet_x.append(x[i])
                 trainSet_y.append(y[i])
                 trainSet_y_label.append(y_label[i])
@@ -115,7 +112,6 @@ def EachClassSampleSeparate(featurefilename):
         dataset = list(lines)
         feature_name = dataset[0]
         feature_value = dataset[1:] #特征值数值
-#         feature_value = List_Transpose(feature_value)#特征值转置
         
         x_line=size(feature_value,0)  #####行，有多少种特征值
         y_line=size(feature_value,1)  #####列，一种特征值提取了多少个
@@ -158,7 +154,6 @@ def TrainAndTestSetSelectForSingleClass(featurefilename, class_label=1, mode=1):
     y_label = normalization_feature_value[-1] #类别标签
     y = normalization_feature_value[-2] #力随时间的积分值
     x = List_Transpose(normalization_feature_value[:-2]) #sEMG特征值
-    # print(len(x[0]))
     sample_num = len(y)
     
     trainSet_x = []
@@ -168,7 +163,7 @@ def TrainAndTestSetSelectForSingleClass(featurefilename, class_label=1, mode=1):
     testSet_y =[]
     testSet_y_label =[]
     
-    ratio = 6#训练集所占的比例，ratio成
+    ratio = 5#训练集所占的比例，ratio成
     
     i=0
     while i < sample_num:
@@ -182,7 +177,7 @@ def TrainAndTestSetSelectForSingleClass(featurefilename, class_label=1, mode=1):
                 testSet_y.append(y[i])
                 testSet_y_label.append(y_label[i])
         elif mode == 2:
-            if random.randint(0, 10) <=ratio:
+            if random.randint(0, 10) < ratio:
                 trainSet_x.append(x[i])
                 trainSet_y.append(y[i])
                 trainSet_y_label.append(y_label[i])

@@ -2,12 +2,12 @@ from ActivityDetect.GetActivity import *
 
 
 def StartAndEndPointShow(filename):   
-    Force,Force_index,force,Raw_1,Envelope_1,Raw_2,Envelope_2=LoadRawForceDataSet(filename)
+    force, Raw_1,Envelope_1,Raw_2,Envelope_2 = LoadDataSetAfterProcess(filename)
     short_energy=GetActivity(force)
     start_index,end_index,force_start_y,force_end_y,\
     raw1_start_y,raw1_end_y,raw2_start_y,raw2_end_y,\
     envelope1_start_y,envelope1_end_y,envelope2_start_y,envelope2_end_y=GetStartAndEndByShortEnergyUsingInterp1d(short_energy, force, Raw_1,Envelope_1,Raw_2,Envelope_2)
-    
+     
     figure(1)
     plt.plot(range(len(Raw_1)),Raw_1,'r-',label='raw1')
     plt.plot(range(len(Raw_2)),Raw_2,'b-',label='raw2')
@@ -64,8 +64,7 @@ def ActivityDetectShow(filename):
     
     plt.show()
     
-    
-
+ 
     
     
     

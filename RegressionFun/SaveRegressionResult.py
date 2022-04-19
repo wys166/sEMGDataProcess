@@ -8,7 +8,7 @@ from ActivityDetect.GetActivity import *
 from Denoise.ForceDenoiseProcess import *
 from ActivityDetect.ForceActivity import *
 
-########函数:3:找到data中与specialvalue接近的值的索引位置#########
+########函数:找到data中与specialvalue接近的值的索引位置#########
 def Get_Special_Index(data, specialvalue):
     length = len(data)
     
@@ -21,7 +21,7 @@ def Get_Special_Index(data, specialvalue):
     value_min = min(value)
     
     return value.index(value_min)
-########函数3:找到data中与specialvalue接近的值的索引位置#########
+########函数:找到data中与specialvalue接近的值的索引位置#########
 
 '''
 构建力三角形，求斜率
@@ -32,7 +32,7 @@ def Structure_Triangle(force, start_index, end_index, Linear_predict_y, Linear_t
     activity_force_axis = range(len(activity_force))#活动段内的力对应的X轴坐标
     
     activity_force_max_value = np.max(activity_force)#最大力
-    activity_force_max_value_index = activity_force.index(activity_force_max_value)+30#最大力对应的索引坐标后移动30个点将力的凸起点中心作为力三角形的顶点
+    activity_force_max_value_index = activity_force.index(activity_force_max_value)+30#最大力对应的索引坐标后移动30个点将力的凸起点中心作为力三角形的顶点(握力信号延迟所致)
     
     activity_force_front = activity_force[:activity_force_max_value_index]#实际力三角形左边的边对应的y坐标
     activity_force_front_axis = activity_force_axis[:activity_force_max_value_index]#实际力三角形左边的边对应的x坐标
@@ -106,46 +106,107 @@ def Get_Reggression_Slope(forcefilename, testSet_y, predict_y, true_y):
 
 '''
 将回归结果保存下来
+调用此函数时需要保证ActivityDetect.ForceActivity文件中设置的参数要与特征提取时设置的参数一致，因为每个subject的个体差异性以及所做抓我动作的标准程度不同，参数设置可能不同
 '''
-def Save_Reggression_Result(filepath):  
+def Save_Reggression_Result(filepath, RegressionFun = 1):  
     featurefilename = filepath + r'\\' + r'Feature.csv'   
-    trainSet_x, trainSet_y, trainSet_y_label, testSet_x, testSet_y, testSet_y_label = TrainAndTestSetSelectForAllClass(featurefilename, mode=1)#偶数用于训练，奇数用于测试
-    ##############线性回归##############
-    Linear_reg = LinearRegression().fit(trainSet_x, trainSet_y)
-    Linear_all_predict_y = Linear_reg.predict(testSet_x)
-    Linear_predict_y, Linear_true_y = SingleClassSeparate(Linear_all_predict_y, testSet_y, testSet_y_label)#将每一类的真实值与预测值分开
-    Linear_error_value, Linear_std_value = GetStdForPredictAndTrue(Linear_all_predict_y, testSet_y)#得到真实值与预测值的误差与标准差
-    print('线性回归预测值与真实值之间的标准差：{}'.format(Linear_std_value))
-    ##############线性回归############## 
-       
-    file_list = ['new_1.csv', 'new_2.csv', 'new_3.csv', 'new_4.csv', 'new_5.csv'] #插值后的力文件    
+    trainSet_x, trainSet_y, trainSet_y_label, testSet_x, testSet_y, testSet_y_label = TrainAndTestSetSelectForAllClass(featurefilename, mode=1)#偶数用于训练，奇数用于测试，刚好保证一半的数据是测试，一半的数据是训练,方便力三角形构建过程中查找样本所在位置
+    
+    if RegressionFun == 1:
+        ##############线性回归##############
+        Linear_reg = LinearRegression().fit(trainSet_x, trainSet_y)
+        all_predict_y = Linear_reg.predict(testSet_x)
+        predict_y, true_y = SingleClassSeparate(all_predict_y, testSet_y, testSet_y_label)#将每一类的真实值与预测值分开
+        Linear_error_value, Linear_std_value = GetStdForPredictAndTrue(all_predict_y, testSet_y)#得到真实值与预测值的误差与标准差
+        print('线性回归预测值与真实值之间的标准差：{}'.format(Linear_std_value))
+        ##############线性回归############## 
+    elif RegressionFun == 2:    
+        ##############岭回归##############
+        Ridge_reg = Ridge().fit(trainSet_x, trainSet_y)
+        all_predict_y = Ridge_reg.predict(testSet_x)
+        predict_y, true_y = SingleClassSeparate(all_predict_y, testSet_y, testSet_y_label)
+        Ridge_error_value, Ridge_std_value = GetStdForPredictAndTrue(all_predict_y, testSet_y)#得到真实值与预测值的误差与标准差
+        print('岭回归预测值与真实值之间的标准差：{}'.format(Ridge_std_value))
+        ##############岭回归##############
+    elif RegressionFun == 3: 
+        ##############k近邻回归##############
+        Knn_reg = KNeighborsRegressor(n_neighbors=5).fit(trainSet_x, trainSet_y)
+        all_predict_y = Knn_reg.predict(testSet_x)
+        predict_y, true_y = SingleClassSeparate(all_predict_y, testSet_y, testSet_y_label)
+        Knn_error_value, Knn_std_value = GetStdForPredictAndTrue(all_predict_y, testSet_y)
+        print('K近邻回归预测值与真实值之间的标准差：{}'.format(Knn_std_value))
+        ##############k近邻回归############## 
+    elif RegressionFun == 4:     
+        ##############MLP回归##############
+        MLP_reg = MLPRegressor(hidden_layer_sizes=(500), activation='identity', solver='lbfgs', alpha=0.00001, batch_size='auto', learning_rate='constant').fit(trainSet_x, trainSet_y)
+        all_predict_y = MLP_reg.predict(testSet_x)
+        predict_y, true_y = SingleClassSeparate(all_predict_y, testSet_y, testSet_y_label)
+        MLP_error_value, MLP_std_value = GetStdForPredictAndTrue(all_predict_y, testSet_y)
+        print('MLP回归预测值与真实值之间的标准差：{}'.format(MLP_std_value))
+        ##############MLP回归##############
+    elif RegressionFun == 5:
+        ##############SVM回归##############
+        SVM_reg = LinearSVR(C=2, loss='squared_epsilon_insensitive').fit(trainSet_x, trainSet_y)
+        all_predict_y = SVM_reg.predict(testSet_x)
+        predict_y, true_y = SingleClassSeparate(all_predict_y, testSet_y, testSet_y_label)
+        SVM_error_value, SVM_std_value = GetStdForPredictAndTrue(all_predict_y, testSet_y)
+        print('SVM回归预测值与真实值之间的标准差：{}'.format(SVM_std_value))
+        ##############SVM回归##############         
+            
+    file_list = ['T1.csv', 'T2.csv', 'T3.csv', 'T4.csv', 'T5.csv'] 
     
     K_predict= []
     K_true = []
     i=0
     while i<len(file_list): 
         forcefilename = filepath + r'\\' + file_list[i]    
-        K_predict_, K_true_ = Get_Reggression_Slope(forcefilename, testSet_y, Linear_predict_y, Linear_true_y)  
+        K_predict_, K_true_ = Get_Reggression_Slope(forcefilename, testSet_y, predict_y, true_y)  
         K_predict = K_predict + K_predict_
         K_true = K_true + K_true_
         
         i = i+1
         print('已处理{}个文件'.format(i))
     
-    Linear_all_predict_y = np.rint(Linear_all_predict_y)
+    all_predict_y = np.rint(all_predict_y)
     testSet_y = list(np.rint(testSet_y))
     
-    Linear_all_predict_y = list(Linear_all_predict_y)
+    all_predict_y = list(all_predict_y)
     testSet_y_label.insert(0, 'label')  
     testSet_y.insert(0, 'true_force_integral') 
-    Linear_all_predict_y.insert(0, 'predict_force_integral') 
+    all_predict_y.insert(0, 'predict_force_integral') 
     K_true.insert(0, 'ture_slope')
     K_predict.insert(0, 'predict_slope')
-    #################将相关参数保存到CSV文件中
-    newdata = [testSet_y_label, testSet_y, Linear_all_predict_y, K_true, K_predict]
+    
+    if RegressionFun == 1:
+        Regressionmode = 'Linear'
+    elif RegressionFun == 2:
+        Regressionmode = 'Ridge'
+    elif RegressionFun == 3:
+        Regressionmode = 'Knn'
+    elif RegressionFun == 4:
+        Regressionmode = 'MLP'
+    elif RegressionFun == 5:
+        Regressionmode = 'SVM'
+        
+    #################将结果保存到CSV文件中
+    newdata = [testSet_y_label, testSet_y, all_predict_y, K_true, K_predict]
     newdata_t = List_Transpose(newdata)
-    with open(filepath + r'\\RegressionResult.csv', 'w', newline='') as csvfile:
+    with open(filepath + r'\\' + Regressionmode + r'RegressionResult.csv', 'w', newline='') as csvfile:
         spamwriter = csv.writer(csvfile, delimiter=',')
         spamwriter.writerows(newdata_t)
         csvfile.close()
-    #################将相关参数保存到CSV文件中         
+    #################将结果保存到CSV文件中   
+ 
+'''
+filepath:每个subject数据存放的路径
+'''
+def main(filepath):    
+    i = 1
+    while i<6:
+        Save_Reggression_Result(filepath, RegressionFun = i)  
+        
+        i=i+1
+ 
+
+    
+      

@@ -1,8 +1,9 @@
 from FileImport.ReadData import *
 
-#########################力阈值
-#受试者
-force_th = 5
+
+#########################参数设置
+#每个Subject握力大小不一,以及握的动作的标准程度有差异，因此以下参数可能不同，需要根据肌肉收缩活动段检测结果进行适当调整
+force_th = 5 #大约5%MVC，不同的subject可能不同，根据MVC进行估计
 force_min_length_1 = 800  #1秒力的数据长度最小值
 force_min_length_2 = 1500 #2秒力的数据长度最小值
 force_min_length_3 = 2500 #3秒力的数据长度最小值
@@ -14,10 +15,12 @@ force_max_length_2 = 3300 #2秒力的数据长度最大值
 force_max_length_3 = 4000 #3秒力的数据长度最大值
 force_max_length_4 = 5000 #4秒力的数据长度最大值
 force_max_length_5 = 6300 #5秒力的数据长度最大值
-#########################力阈值
+#########################参数设置
 
+'''
+把查找的干扰抖动去掉
+'''
 def DeleteFaultSample(start_index,end_index,force_start_y,force_end_y,raw1_start_y,raw1_end_y,raw2_start_y,raw2_end_y,envelope1_start_y,envelope1_end_y,envelope2_start_y,envelope2_end_y):
-    # print('删除掉的活动段长度：{}'.format(end_index[-1] - start_index[-1]))
     del start_index[-1]
     del force_start_y[-1]
     del raw1_start_y[-1]
@@ -33,8 +36,11 @@ def DeleteFaultSample(start_index,end_index,force_start_y,force_end_y,raw1_start
     del envelope2_end_y[-1] 
     
     return start_index,end_index,force_start_y,force_end_y,raw1_start_y,raw1_end_y,raw2_start_y,raw2_end_y,envelope1_start_y,envelope1_end_y,envelope2_start_y,envelope2_end_y
-###############使用插值力数据进行活动段检测################
 
+'''
+force:力数据
+force_speed:取值为1/2/3/4/5，表示五种速度下的力
+'''
 def GetStartAndEndByForceUsingInterp1d(force, Raw_1, Envelope_1, Raw_2, Envelope_2, force_speed):    
     length=len(force)
     
@@ -54,13 +60,13 @@ def GetStartAndEndByForceUsingInterp1d(force, Raw_1, Envelope_1, Raw_2, Envelope
     start_index=[]
     end_index=[]
     
-    #################删除的活动段数量计数
+    #################删除的错误活动段数量计数
     delete_fault_num_1 = 0
     delete_fault_num_2 = 0
     delete_fault_num_3 = 0
     delete_fault_num_4 = 0
     delete_fault_num_5 = 0
-    #################删除的活动段数量计数
+    #################删除的错误活动段数量计数
     
     find_flag=False
     
@@ -157,5 +163,5 @@ def GetStartAndEndByForceUsingInterp1d(force, Raw_1, Envelope_1, Raw_2, Envelope
         
     print("活动段总数量为："+str(len(end_index)))
     return start_index,end_index,force_start_y,force_end_y,raw1_start_y,raw1_end_y,raw2_start_y,raw2_end_y,envelope1_start_y,envelope1_end_y,envelope2_start_y,envelope2_end_y      
-###############使用插值力数据进行活动段检测################
+
     
