@@ -1,7 +1,7 @@
 from FileImport.ReadData import *
 from Denoise.ForceDenoiseProcess import *
 
-force_th = 8 #大约5%MVC，不同的subject可能不同，根据MVC进行估计
+force_th = 5 #大约2%MVC，不同的subject可能不同，根据MVC进行估计
 
 def GetStartAndEndByForceUsingInterp1d(force, Raw_1, Envelope_1, Raw_2, Envelope_2, force_speed):    
     length=len(force)

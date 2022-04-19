@@ -3,7 +3,7 @@ from FileImport.ReadData import *
 
 #########################参数设置
 #每个Subject握力大小不一,以及握的动作的标准程度有差异，因此以下参数可能不同，需要根据肌肉收缩活动段检测结果进行适当调整
-force_th = 5 #大约5%MVC，不同的subject可能不同，根据MVC进行估计
+force_th = 5 #大约2%MVC，不同的subject可能不同，根据MVC进行估计
 force_min_length_1 = 800  #1秒力的数据长度最小值
 force_min_length_2 = 1500 #2秒力的数据长度最小值
 force_min_length_3 = 2500 #3秒力的数据长度最小值
