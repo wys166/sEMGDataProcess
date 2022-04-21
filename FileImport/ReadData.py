@@ -30,16 +30,16 @@ def LoadRawDataSetByChNum(filename, CH=2):   ####################力信号、两
                 dataset[i][j]=np.int(dataset[i][j])
                 if CH==2:
                     if j==0:
-                        Raw_1.append(dataset[i][j])                                           
+                        Raw_1.append(dataset[i][j]-2076)                                           
                     elif j==1:
                         Envelope_1.append(dataset[i][j])
                 elif CH==4:    
                     if j==0:
-                        Raw_1.append(dataset[i][j])                                           
+                        Raw_1.append(dataset[i][j]-2076)                                           
                     elif j==1:
                         Envelope_1.append(dataset[i][j])
                     elif j==2:
-                        Raw_2.append(dataset[i][j])                    
+                        Raw_2.append(dataset[i][j]-2053)                    
                     elif j==3:
                         Envelope_2.append(dataset[i][j])                    
                     
