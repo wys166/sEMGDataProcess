@@ -1,102 +1,51 @@
 from FileImport.ReadData import *
-from ActivityDetect.GetActivity import *
-from Denoise.LMSandNLMSDenoiseProcess import *
-from FeatureExtract.GetFeature import *
+from ActivityDetection.DetectionFun import *
+from Denoise.EnvelopeDenoiseFun import *
+from Denoise.ForceDenoiseFun import *
+from Denoise.RawDenoiseFun import *
 
+##########################feature process function##########################
 '''
-样本熵特征显示
+select feature from two channels
 '''
-def SampEnShow(filename):
-    sampling_rate = 1000
-    force,Raw_1,Envelope_1,Raw_2,Envelope_2=LoadDataSetAfterProcess(filename)
-    
-    ################信号去噪################
-    force = ButterLowFilter(force, 5, sampling_rate)#力去噪
-    # yn, error, weight=NLMSFiltering(xn, Raw_1, 9, 0.0052) #表面肌电原始信号去噪
-    # yn, error, weight=NLMSFiltering(xn, Raw_2, 9, 0.0052) #表面肌电原始信号去噪
-    Envelope_1 = SlidingMeanFiltering(Envelope_1, 51)
-    Envelope_2 = SlidingMeanFiltering(Envelope_2, 51)
-    ################信号去噪################
-    
-    ################活动段检测################
-    short_energy=GetActivity(force)
-    start_index,end_index,force_start_y,force_end_y,\
-    raw1_start_y,raw1_end_y,raw2_start_y,raw2_end_y,\
-    envelope1_start_y,envelope1_end_y,envelope2_start_y,envelope2_end_y=GetStartAndEndByShortEnergyUsingInterp1d(short_energy, force, Raw_1,Envelope_1,Raw_2,Envelope_2)
-    ################活动段检测################
-    
-    m = 1
-    SampEnFeature_raw1 = []
-    SampEnFeature_raw2 = []
-    SampEnFeature_envelope1 = []
-    SampEnFeature_envelope2 = []
-    
-    length = len(end_index)
-    i = 0
-    while i < length:
-        data = Raw_1[start_index[i]:end_index[i]]        
-        SampEnFeature_raw1.append(SampEnMatrix(data, m))
-        
-        data = Raw_2[start_index[i]:end_index[i]]        
-        SampEnFeature_raw2.append(SampEnMatrix(data, m))
-        
-        data = Envelope_1[start_index[i]:end_index[i]]        
-        SampEnFeature_envelope1.append(SampEnMatrix(data, m))
-        
-        data = Envelope_2[start_index[i]:end_index[i]]        
-        SampEnFeature_envelope2.append(SampEnMatrix(data, m))
-        print('第{}个特征'.format(i))
-        
-        i=i+1
-    
-    figure(1)
-    plt.title('SampEn')
-    plt.plot(range(len(SampEnFeature_raw1)),SampEnFeature_raw1,'k.-',label='SampEnFeature_raw1')
-    plt.plot(range(len(SampEnFeature_raw2)),SampEnFeature_raw2,'g.-',label='SampEnFeature_raw2')
-    plt.plot(range(len(SampEnFeature_envelope1)),SampEnFeature_envelope1,'b.-',label='SampEnFeature_envelope1')
-    plt.plot(range(len(SampEnFeature_envelope2)),SampEnFeature_envelope2,'r.-',label='SampEnFeature_envelope2')
-    plt.legend()
-
-    plt.show()
-
-'''
-从标准化后的特征中挑选要观察的特征
-'''
-def select_feature(normalization_feature_value, feature_index, CH):
+def SelectFeature(normalization_feature_value, feature_index, CH=2):
     select_feature_allCH = []
     i=0
     while i<CH:
         select_feature_allCH.append(normalization_feature_value[feature_index + i*feature_index])
         
-        
         i=i+1
         
-    return select_feature_allCH  
+    return select_feature_allCH
+##########################feature process function##########################
+
+##########################feature show########################## 
 '''
-从所有文件中提取的特征在同一个图中绘制处理
+Show all features
+input: for example: featurefilename=r'D:\\DataSet\\FeatureDataShow\\Feature.csv'
 '''        
-def All_Feature_Show(featurefilename):
+def AllFeatureShow(featurefilename):
     feature_value, feature_name, singleCh_feature_name = LoadFeatures(featurefilename)
     print(feature_name)
     print(singleCh_feature_name)
     normalization_feature_value = FeatureNormalization(feature_value)
-    MAV = select_feature(normalization_feature_value, 0, 2)
-    RMS = select_feature(normalization_feature_value, 1, 2)
-    Var = select_feature(normalization_feature_value, 2, 2)
-    IEMG = select_feature(normalization_feature_value, 3, 2)
-    WL = select_feature(normalization_feature_value, 4, 2)
-    WAMP = select_feature(normalization_feature_value, 5, 2)
-    SSC = select_feature(normalization_feature_value, 6, 2)
-    ZC = select_feature(normalization_feature_value, 7, 2)
-    SampEnValue_raw = select_feature(normalization_feature_value, 8, 2)
-    PKF = select_feature(normalization_feature_value, 9, 2)
-    MNF = select_feature(normalization_feature_value, 10, 2)
-    MDF = select_feature(normalization_feature_value, 11, 2)
-    integral_envelope = select_feature(normalization_feature_value, 12, 2)
-    mean_envelope = select_feature(normalization_feature_value, 13, 2)
-    SampEnValue_envelope = select_feature(normalization_feature_value, 14, 2)
-    force_mean = normalization_feature_value[-3] #力均值
-    force_integral = normalization_feature_value[-2] #力积分值
+    MAV = SelectFeature(normalization_feature_value, 0, 2)
+    RMS = SelectFeature(normalization_feature_value, 1, 2)
+    Var = SelectFeature(normalization_feature_value, 2, 2)
+    IEMG = SelectFeature(normalization_feature_value, 3, 2)
+    WL = SelectFeature(normalization_feature_value, 4, 2)
+    WAMP = SelectFeature(normalization_feature_value, 5, 2)
+    SSC = SelectFeature(normalization_feature_value, 6, 2)
+    ZC = SelectFeature(normalization_feature_value, 7, 2)
+    SampEnValue_raw = SelectFeature(normalization_feature_value, 8, 2)
+    PKF = SelectFeature(normalization_feature_value, 9, 2)
+    MNF = SelectFeature(normalization_feature_value, 10, 2)
+    MDF = SelectFeature(normalization_feature_value, 11, 2)
+    integral_envelope = SelectFeature(normalization_feature_value, 12, 2)
+    mean_envelope = SelectFeature(normalization_feature_value, 13, 2)
+    SampEnValue_envelope = SelectFeature(normalization_feature_value, 14, 2)
+    force_mean = normalization_feature_value[-3] 
+    force_integral = normalization_feature_value[-2] 
     
     figure(0)
     plt.title('force')
@@ -187,14 +136,16 @@ def All_Feature_Show(featurefilename):
     plt.legend()
     
     plt.show()
-   
+##########################feature show##########################
+
+##########################feature process##########################    
 '''
-feature:各个标签对应的所有特征，一行
-label_class：标签的种类
+feature:feature value
+label_class：class
 '''    
-def SameFeatrueSeparateShow(feature, label_class):
-    feature_ch1 = feature[0]#通道1
-    feature_ch2 = feature[1]#通道2
+def SameFeatrueSeparate(feature, label_class):
+    feature_ch1 = feature[0]
+    feature_ch2 = feature[1]
     feature_total = len(feature_ch1)
     feature_total_row = round(feature_total / label_class) 
     feature_single_ch1 = np.zeros((label_class, feature_total_row))
@@ -208,40 +159,37 @@ def SameFeatrueSeparateShow(feature, label_class):
         i=i+1
     
     return feature_single_ch1, feature_single_ch2
+##########################feature process##########################
+
+##########################feature show##########################
+'''
+input: for example: featurefilename=r'D:\\DataSet\\FeatureDataShow\\Feature.csv'
+'''
 def SingleFeatureShow(featurefilename):
     feature_value, feature_name, singleCh_feature_name = LoadFeatures(featurefilename)
     print(feature_name)
     print(singleCh_feature_name)
     normalization_feature_value = FeatureNormalization(feature_value)
     
-    MAV = select_feature(normalization_feature_value, 0, 2)
-    RMS = select_feature(normalization_feature_value, 1, 2)
-    Var = select_feature(normalization_feature_value, 2, 2)
-    IEMG = select_feature(normalization_feature_value, 3, 2)
-    WL = select_feature(normalization_feature_value, 4, 2)
-    WAMP = select_feature(normalization_feature_value, 5, 2)
-    SSC = select_feature(normalization_feature_value, 6, 2)
-    ZC = select_feature(normalization_feature_value, 7, 2)
-    SampEnValue_raw = select_feature(normalization_feature_value, 8, 2)
-    PKF = select_feature(normalization_feature_value, 9, 2)
-    MNF = select_feature(normalization_feature_value, 10, 2)
-    MDF = select_feature(normalization_feature_value, 11, 2)
-    integral_envelope = select_feature(normalization_feature_value, 12, 2)
-    mean_envelope = select_feature(normalization_feature_value, 13, 2)
-    SampEnValue_envelope = select_feature(normalization_feature_value, 14, 2)
-    force_mean = normalization_feature_value[-3] #力均值
-    force_integral = normalization_feature_value[-2] #力积分值
+    MAV = SelectFeature(normalization_feature_value, 0, 2)
+    RMS = SelectFeature(normalization_feature_value, 1, 2)
+    Var = SelectFeature(normalization_feature_value, 2, 2)
+    IEMG = SelectFeature(normalization_feature_value, 3, 2)
+    WL = SelectFeature(normalization_feature_value, 4, 2)
+    WAMP = SelectFeature(normalization_feature_value, 5, 2)
+    SSC = SelectFeature(normalization_feature_value, 6, 2)
+    ZC = SelectFeature(normalization_feature_value, 7, 2)
+    SampEnValue_raw = SelectFeature(normalization_feature_value, 8, 2)
+    PKF = SelectFeature(normalization_feature_value, 9, 2)
+    MNF = SelectFeature(normalization_feature_value, 10, 2)
+    MDF = SelectFeature(normalization_feature_value, 11, 2)
+    integral_envelope = SelectFeature(normalization_feature_value, 12, 2)
+    mean_envelope = SelectFeature(normalization_feature_value, 13, 2)
+    SampEnValue_envelope = SelectFeature(normalization_feature_value, 14, 2)
+    force_mean = normalization_feature_value[-3] 
+    force_integral = normalization_feature_value[-2] 
     
-    feature_single_ch1, feature_single_ch2 = SameFeatrueSeparateShow(SampEnValue_envelope, 5)#5个类别
-       
-    figure(0)
-    plt.title('force_mean')
-    plt.plot(range(len(force_mean[0:100])),force_mean[0:100],'k.-',label='1')
-    plt.plot(range(len(force_mean[100:200])),force_mean[100:200],'r.-',label='2')
-    plt.plot(range(len(force_mean[200:300])),force_mean[200:300],'g.-',label='3')
-    plt.plot(range(len(force_mean[300:400])),force_mean[300:400],'b.-',label='4')
-    plt.ylim(0, 1)
-    plt.legend()
+    feature_single_ch1, feature_single_ch2 = SameFeatrueSeparate(SSC, 5)
     
     feature_num = 80
     figure(1)
@@ -275,21 +223,23 @@ def SingleFeatureShow(featurefilename):
     plt.legend()
     
     plt.show()
+##########################feature show##########################
 
+##########################feature show##########################   
 '''
-本函数用于5种速度下的握力随时间积分值的大小显示
-'''    
-def Integral_forceShow(featurefilename): 
+input: for example: featurefilename=r'D:\\DataSet\\FeatureDataShow\\Feature.csv'
+'''
+def IntegralForceShow(featurefilename): 
     feature_value, feature_name, singleCh_feature_name = LoadFeatures(featurefilename)
     print(feature_name)
     print(singleCh_feature_name)
     normalization_feature_value = FeatureNormalization(feature_value)  
-    force_mean = normalization_feature_value[-3] #力均值
-    force_integral = normalization_feature_value[-2] #力积分值 
-    label_y = normalization_feature_value[-1] #标签
+    force_mean = normalization_feature_value[-3] 
+    force_integral = normalization_feature_value[-2] 
+    label_y = normalization_feature_value[-1] 
     
-    IEMG = select_feature(normalization_feature_value, 3, 2)
-    feature_single_ch1, feature_single_ch2 = SameFeatrueSeparateShow(IEMG, 5)#5个类别
+    IEMG = SelectFeature(normalization_feature_value, 3, 2)
+    feature_single_ch1, feature_single_ch2 = SameFeatrueSeparate(IEMG, 5)
     
     feature_num = 80
     label_1 = [1] * feature_num
@@ -364,7 +314,14 @@ def Integral_forceShow(featurefilename):
     plt.plot(Force_Integral[4], Force_Label, c='y', marker='.', label='5')
     plt.legend()
     
-    
     plt.show()
-        
+##########################feature show##########################        
+
+
+
+'''
+Show IFORCE
+'''
+IntegralForceShow(r'D:\\DataSet\\FeatureDataShow\\Feature.csv')
+
 
